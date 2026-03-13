@@ -92,7 +92,7 @@ class Follow(models.Model):
         on_delete=models.CASCADE,related_name="following_relationships"
     )
     following = models.ForeignKey("users.User",on_delete=models.CASCADE,related_name="follower_relationships")
-    created_at = models.DateTimeField(default=timezone.now())
+    created_at = models.DateTimeField(default=timezone.now)
 
     class Meta:
         db_table = "follows"

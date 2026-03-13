@@ -11,7 +11,7 @@ class PostStatus(models.TextChoices):
 class Tag(models.Model):
     name = models.CharField(max_length=50,unique=True)
     slug = models.SlugField(max_length=60,unique=True)
-    created_at = models.DateTimeField(default=timezone.now())
+    created_at = models.DateTimeField(default=timezone.now)
 
     class Meta:
         db_table = "tags"
@@ -99,7 +99,7 @@ class Post(models.Model):
 class PostTag(models.Model):
     post = models.ForeignKey(Post,on_delete=models.CASCADE,related_name="post_tags")
     tag = models.ForeignKey("posts.Tag",on_delete=models.CASCADE,related_name="tag_posts")
-    created_at = models.DateTimeField(default=timezone.now())
+    created_at = models.DateTimeField(default=timezone.now)
 
     class Meta:
         db_table = "post_tags"
@@ -183,7 +183,7 @@ class PostLike(models.Model):
 class Bookmark(models.Model):
     post = models.ForeignKey("posts.Post",on_delete=models.CASCADE,related_name="post_bookmarks")
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,related_name="user_bookmarks")
-    created_at = models.DateTimeField(default=timezone.now())
+    created_at = models.DateTimeField(default=timezone.now)
 
     class Meta:
         db_table = "bookmarks"
