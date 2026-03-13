@@ -1,7 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-
-from .models import User, Profile
+from .models import User, Profile, Follow
 
 @admin.register(User)
 class UserAdmin(BaseUserAdmin):
@@ -29,3 +28,9 @@ class ProfileAdmin(admin.ModelAdmin):
     list_display = ["id", "user", "full_name", "location", "created_at"]
     search_fields = ["user__email", "user__username", "full_name", "location"]
     readonly_fields = ["created_at", "updated_at"]
+
+@admin.register(Follow)
+class FollowAdmin(admin.ModelAdmin):
+    list_display = ["id","follower","following","created_at"]
+    search_fields = ["follower__email","follower__username","following__email","following__username"]
+    readonly_fields = ["created_at"]

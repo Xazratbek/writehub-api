@@ -47,6 +47,13 @@ class User(AbstractBaseUser, PermissionsMixin):
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
 
+    following = models.ManyToManyField(
+        "self",
+        through="users.Follow",
+        symmetrical=False,
+        related_name="followers",
+        blank=True
+    )
     objects = CustomUserManager()
 
     USERNAME_FIELD = "email"
@@ -77,3 +84,37 @@ class Profile(models.Model):
 
     def __str__(self):
         return f"Profile<{self.user.email}>"
+
+
+class Follow(models.Model):
+    follower = models.ForeignKey(
+        "users.User",
+        on_delete=models.CASCADE,related_name="following_relationships"
+    )
+    following = models.ForeignKey("users.User",on_delete=models.CASCADE,related_name="follower_relationships")
+    created_at = models.DateTimeField(default=timezone.now())
+
+    class Meta:
+        db_table = "follows"
+        ordering = ["-created_at"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["follower","following"],name="unique_follow_relationship"
+            )
+        ]
+        indexes = (
+            models.Index(fields=["follower"]),
+            models.Index(fields=["following"]),
+            models.Index(fields=["created_at"]),
+        )
+
+    def clean(self):
+        if self.follower_id == self.following_id:
+            raise ValueError("Foydalanuvchi o'ziga o'zi obuna bo'la olmaydi")
+
+    def save(self,*args, **kwargs):
+        self.full_clean()
+        super().save(*args,**kwargs)
+
+    def __str__(self):
+        return f"Follow<follower={self.follower_id}, following={self.following_id}>"
