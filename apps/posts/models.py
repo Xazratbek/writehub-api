@@ -34,6 +34,18 @@ class Post(models.Model):
     title = models.CharField(max_length=255)
     slug = models.SlugField(max_length=255)
     tags = models.ManyToManyField("posts.Tag",through="posts.PostTag",related_name="posts",blank=True)
+    liked_by = models.ManyToManyField(
+        settings.AUTH_USER_MODEL,
+        through="posts.PostLike",
+        related_name="liked_posts",
+        blank=True,
+    )
+    bookmarked_by = models.ManyToManyField(
+        settings.AUTH_USER_MODEL,
+        through="posts.Bookmark",
+        related_name="bookmarked_posts",
+        blank=True,
+    )
     excerpt = models.TextField(blank=True)
     content = models.TextField()
     cover_image = models.ImageField(upload_to="posts/covers/", blank=True, null=True)
@@ -141,3 +153,51 @@ class Comment(models.Model):
 
     def __str__(self):
         return f"Comment<{self.id}> by {self.author.email}"
+
+class PostLike(models.Model):
+    post = models.ForeignKey(
+        "posts.Post",
+        on_delete=models.CASCADE,
+        related_name="post_likes"
+    )
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE,related_name="user_post_likes")
+    created_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        db_table = "post_likes"
+        ordering = ["-created_at"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["post","user"], name="unique_post_like"
+            ),
+        ]
+        indexes = [
+            models.Index(fields=["post"]),
+            models.Index(fields=["user"]),
+            models.Index(fields=["created_at"]),
+        ]
+
+    def __str__(self):
+        return f"Like<post={self.post_id}, user={self.user_id}>"
+
+class Bookmark(models.Model):
+    post = models.ForeignKey("posts.Post",on_delete=models.CASCADE,related_name="post_bookmarks")
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,related_name="user_bookmarks")
+    created_at = models.DateTimeField(default=timezone.now())
+
+    class Meta:
+        db_table = "bookmarks"
+        ordering = ["-created_at"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["post","user"], name="unique_post_bookmark"
+            ),
+        ]
+        indexes = [
+            models.Index(fields=["post"]),
+            models.Index(fields=["user"]),
+            models.Index(fields=["created_at"]),
+        ]
+
+    def __str__(self):
+        return f"Bookmark<post={self.post_id}, user={self.user_id}>"

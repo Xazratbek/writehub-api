@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Post, Tag, PostTag, Comment
+from .models import Post, Tag, PostTag, Comment, PostLike, Bookmark
 
 @admin.register(Post)
 class PostAdmin(admin.ModelAdmin):
@@ -31,3 +31,16 @@ class CommentAdmin(admin.ModelAdmin):
     list_filter = ["is_edited","deleted_at","created_at"]
     search_fields = ["content","author__email","author__username","post__title"]
     readonly_fields = ["is_edited","created_at","updated_at"]
+
+
+@admin.register(PostLike)
+class PostLikeAdmin(admin.ModelAdmin):
+    list_display = ["id","post","user","created_at"]
+    search_fields = ["post__title","user__email","user__username"]
+    readonly_fields = ["created_at"]
+
+@admin.register(Bookmark)
+class BookmarkAdmin(admin.ModelAdmin):
+    list_display = ["id","post","user","created_at"]
+    search_fields = ["post__title","user__email","user__username"]
+    readonly_fields = ["created_at"]
