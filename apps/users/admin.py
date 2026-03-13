@@ -23,8 +23,9 @@ class UserAdmin(BaseUserAdmin):
         }),
     )
 
+
 @admin.register(Profile)
 class ProfileAdmin(admin.ModelAdmin):
-    list_display = ["id","user","full_name","location","created_at"]
-    search_fields = ["user_email","user__username","full_name","location"]
-    readonly_fields = ["created_at","updated_at"]
+    list_display = ["id", "user", "full_name", "location", "created_at"]
+    search_fields = ["user__email", "user__username", "full_name", "location"]
+    readonly_fields = ["created_at", "updated_at"]
