@@ -9,6 +9,22 @@ class PostStatus(models.TextChoices):
     PUBLISHED = "published", "Published"
     ARCHIVED = "archived", "Archived"
 
+class Tag(models.Model):
+    name = models.CharField(max_length=50,unique=True)
+    slug = models.SlugField(max_length=60,unique=True)
+    created_at = models.DateTimeField(default=timezone.now())
+
+    class Meta:
+        db_table = "tags"
+        ordering = ["name"]
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
 
 class Post(models.Model):
     author = models.ForeignKey(
@@ -18,6 +34,7 @@ class Post(models.Model):
     )
     title = models.CharField(max_length=255)
     slug = models.SlugField(max_length=255)
+    tags = models.ManyToManyField("posts.Tag",through="posts.PostTag",related_name="posts",blank=True)
     excerpt = models.TextField(blank=True)
     content = models.TextField()
     cover_image = models.ImageField(upload_to="posts/covers/", blank=True, null=True)
@@ -67,3 +84,25 @@ class Post(models.Model):
 
     def __str__(self):
         return self.title
+
+class PostTag(models.Model):
+    post = models.ForeignKey(Post,on_delete=models.CASCADE,related_name="post_tags")
+    tag = models.ForeignKey("posts.Tag",on_delete=models.CASCADE,related_name="tag_posts")
+    created_at = models.DateTimeField(default=timezone.now())
+
+    class Meta:
+        db_table = "post_tags"
+        ordering = ["-created_at"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["post","tag"],
+                name="unique_post_tag",
+            )
+        ]
+        indexes = [
+            models.Index(fields=["post"]),
+            models.Index(fields=["tag"]),
+        ]
+
+        def __str__(self):
+            return f"{self.post_id} -> {self.tag.name}"
