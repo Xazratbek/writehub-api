@@ -58,3 +58,22 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.email
+
+
+class Profile(models.Model):
+    user = models.OneToOneField("users.User",on_delete=models.CASCADE,related_name="profile")
+    full_name = models.CharField(max_length=255,blank=True)
+    bio = models.TextField(blank=True)
+    avatar = models.ImageField(upload_to="avatars/",blank=True,null=True)
+    website = models.URLField(blank=True)
+    location = models.CharField(max_length=255,blank=True)
+    birth_date = models.DateField(blank=True,null=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "profiles"
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"Profile<{self.user.email}>"
