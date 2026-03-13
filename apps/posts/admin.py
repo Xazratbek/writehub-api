@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Post, Tag, PostTag
+from .models import Post, Tag, PostTag, Comment
 
 @admin.register(Post)
 class PostAdmin(admin.ModelAdmin):
@@ -24,3 +24,10 @@ class PostTagAdmin(admin.ModelAdmin):
     list_display = ["id","post","tag","created_at"]
     search_fields = ["post__title","tag__name"]
     readonly_fields = ["created_at"]
+
+@admin.register(Comment)
+class CommentAdmin(admin.ModelAdmin):
+    list_display = ["id","post","author","parent","is_edited","deleted_at","created_at"]
+    list_filter = ["is_edited","deleted_at","created_at"]
+    search_fields = ["content","author__email","author__username","post__title"]
+    readonly_fields = ["is_edited","created_at","updated_at"]

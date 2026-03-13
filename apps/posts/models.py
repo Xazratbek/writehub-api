@@ -3,7 +3,6 @@ from django.db import models
 from django.utils import timezone
 from django.utils.text import slugify
 
-
 class PostStatus(models.TextChoices):
     DRAFT = "draft", "Draft"
     PUBLISHED = "published", "Published"
@@ -106,3 +105,39 @@ class PostTag(models.Model):
 
         def __str__(self):
             return f"{self.post_id} -> {self.tag.name}"
+
+class Comment(models.Model):
+    post = models.ForeignKey("posts.Post",on_delete=models.CASCADE,related_name="comments")
+    author = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE,related_name="comments")
+    parent = models.ForeignKey("self",on_delete=models.CASCADE,related_name="replies",blank=True,null=True)
+    content = models.TextField()
+    is_edited = models.BooleanField(default=False)
+    deleted_at = models.DateTimeField(blank=True,null=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "comments"
+        ordering = ["created_at"]
+        indexes = [
+            models.Index(fields=["post","created_at"]),
+            models.Index(fields=["author"]),
+            models.Index(fields=["parent"]),
+            models.Index(fields=["deleted_at"]),
+        ]
+
+    def clean(self):
+        if self.parent and self.parent.post_id != self.post_id:
+            raise ValueError("Parent id aynan shu postga tegishli bo'lishi kerak")
+
+    def save(self,*args, **kwargs):
+        if self.pk:
+            original = Comment.objects.filter(pk=self.pk).only("content").first()
+            if original and original.content != self.content:
+                self.is_edited = True
+
+        self.full_clean()
+        super().save(*args,**kwargs)
+
+    def __str__(self):
+        return f"Comment<{self.id}> by {self.author.email}"
