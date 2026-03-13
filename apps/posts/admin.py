@@ -1,5 +1,6 @@
 from django.contrib import admin
-from .models import Post, Tag, PostTag, Comment, PostLike, Bookmark
+from .models import *
+
 
 @admin.register(Post)
 class PostAdmin(admin.ModelAdmin):
@@ -44,3 +45,9 @@ class BookmarkAdmin(admin.ModelAdmin):
     list_display = ["id","post","user","created_at"]
     search_fields = ["post__title","user__email","user__username"]
     readonly_fields = ["created_at"]
+
+@admin.register(PostView)
+class PostViewAdmin(admin.ModelAdmin):
+    list_display = ["id","post","user","ip_address","viewed_at"]
+    search_fields = ["post__title","user__email","user__username","ip_address"]
+    readonly_fields = ["viewed_at"]

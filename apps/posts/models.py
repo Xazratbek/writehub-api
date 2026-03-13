@@ -201,3 +201,26 @@ class Bookmark(models.Model):
 
     def __str__(self):
         return f"Bookmark<post={self.post_id}, user={self.user_id}>"
+
+
+class PostView(models.Model):
+    post = models.ForeignKey("posts.Post",on_delete=models.CASCADE,related_name="post_views")
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,on_delete=models.CASCADE,related_name="viewed_posts_log",blank=True,null=True
+    )
+    ip_address = models.GenericIPAddressField(blank=True,null=True)
+    user_agent = models.TextField(blank=True)
+    viewed_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        db_table = "post_views"
+        ordering = ["-viewed_at"]
+        indexes = [
+            models.Index(fields=["post","viewed_at"]),
+            models.Index(fields=["user"]),
+            models.Index(fields=["ip_address"]),
+            models.Index(fields=["viewed_at"]),
+        ]
+
+    def __str__(self):
+        return f"PostView<post={self.post_id}, user={self.user_id}, viewed_at={self.viewed_at}>"
