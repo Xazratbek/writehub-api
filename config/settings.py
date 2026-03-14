@@ -23,9 +23,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+
     'apps.users',
     'apps.posts',
     'apps.notifications',
+
+    'drf_yasg',
 ]
 
 MIDDLEWARE = [
@@ -128,6 +131,3 @@ SIMPLE_JWT = {
     "BLACKLIST_AFTER_ROTATION": False,
     "AUTH_HEADER_TYPES": ("Bearer",),
 }
-
-MEDIA_URL = "/media/"
-MEDIA_ROOT = BASE_DIR / "media"
